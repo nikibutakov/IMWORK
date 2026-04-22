@@ -29,13 +29,13 @@ router = Router()
 async def cmd_start(message: types.Message, session: AsyncSession):
     """Обработчик команды /start - начало онбординга или главное меню"""
     telegram_id = str(message.from_user.id)
-    
+
     # Проверяем, есть ли пользователь в БД
     result = await session.execute(
         select(User).where(User.telegram_id == telegram_id)
     )
     user = result.scalar_one_or_none()
-    
+
     if user and user.role:
         # Пользователь уже прошел онбординг - показываем главное меню
         await show_main_menu(message, user)
@@ -86,10 +86,10 @@ async def student_course_selected(callback: types.CallbackQuery, state: FSMConte
         "masters": "Магистратура"
     }
     course_name = course_map.get(course_data, course_data)
-    
+
     await state.update_data(course=course_name)
     await state.set_state(OnboardingStudent.specialization)
-    
+
     await callback.message.edit_text(
         f"✅ Курс: {course_name}\n\n"
         "Выберите вашу специализацию:",
@@ -104,7 +104,7 @@ async def student_spec_selected(callback: types.CallbackQuery, state: FSMContext
     specialization = callback.data.replace("spec_", "")
     await state.update_data(specialization=specialization)
     await state.set_state(OnboardingStudent.preferences)
-    
+
     await callback.message.edit_text(
         f"✅ Специализация: {specialization}\n\n"
         "Опишите ваши предпочтения по стажировке (тип работы, график, направление):\n"
@@ -121,13 +121,13 @@ async def student_preferences_received(message: types.Message, state: FSMContext
         await state.clear()
         await message.answer("Онбординг прерван. Возврат в меню.", reply_markup=get_back_to_menu_keyboard())
         return
-    
+
     preferences = message.text
     data = await state.get_data()
-    
+
     # Сохраняем профиль студента в БД
     await save_student_profile(message, state, session, data, preferences)
-    
+
     await state.clear()
     await message.answer(
         "✅ Профиль успешно создан!\n\n"
@@ -145,15 +145,15 @@ async def employer_company_name_received(message: types.Message, state: FSMConte
         await state.clear()
         await message.answer("Онбординг прерван. Возврат в меню.", reply_markup=get_back_to_menu_keyboard())
         return
-    
+
     company_name = message.text.strip()
     if not company_name:
         await message.answer("❌ Название компании не может быть пустым. Введите название:")
         return
-    
+
     await state.update_data(company_name=company_name)
     await state.set_state(OnboardingEmployer.company_field)
-    
+
     await message.answer(
         f"✅ Компания: {company_name}\n\n"
         "Выберите сферу деятельности вашей компании:",
@@ -167,7 +167,7 @@ async def employer_company_field_selected(callback: types.CallbackQuery, state: 
     company_field = callback.data.replace("field_", "")
     await state.update_data(company_field=company_field)
     await state.set_state(OnboardingEmployer.verification_step)
-    
+
     await callback.message.edit_text(
         f"✅ Сфера деятельности: {company_field}\n\n"
         "📋 Последний шаг: верификация компании.\n\n"
@@ -182,10 +182,10 @@ async def employer_company_field_selected(callback: types.CallbackQuery, state: 
 async def employer_verification_back(callback: types.CallbackQuery, state: FSMContext, session: AsyncSession):
     """Работодатель вернулся в меню после верификации"""
     data = await state.get_data()
-    
+
     # Сохраняем профиль работодателя (is_verified=False)
     await save_employer_profile(callback.message, state, session, data, is_verified=False)
-    
+
     await state.clear()
     await callback.message.edit_text(
         "✅ Профиль компании создан!\n\n"
@@ -207,13 +207,13 @@ async def save_student_profile(
 ):
     """Сохранение профиля студента в БД"""
     telegram_id = str(message.from_user.id)
-    
+
     # Проверяем, есть ли уже пользователь
     result = await session.execute(
         select(User).where(User.telegram_id == telegram_id)
     )
     user = result.scalar_one_or_none()
-    
+
     if user:
         # Обновляем существующего пользователя
         user.role = "student"
@@ -231,7 +231,7 @@ async def save_student_profile(
             direction=data.get("specialization")
         )
         session.add(user)
-    
+
     await session.commit()
 
 
@@ -244,13 +244,13 @@ async def save_employer_profile(
 ):
     """Сохранение профиля работодателя в БД"""
     telegram_id = str(message.from_user.id)
-    
+
     # Проверяем, есть ли уже пользователь
     result = await session.execute(
         select(User).where(User.telegram_id == telegram_id)
     )
     user = result.scalar_one_or_none()
-    
+
     if user:
         # Обновляем существующего пользователя
         user.role = "employer"
@@ -265,7 +265,7 @@ async def save_employer_profile(
             role="employer"
         )
         session.add(user)
-    
+
     await session.commit()
 
 
@@ -299,14 +299,14 @@ async def show_main_menu(message: types.Message, user: User):
 async def back_to_menu_handler(callback: types.CallbackQuery, session: AsyncSession, state: FSMContext):
     """Возврат в главное меню из любого состояния"""
     telegram_id = str(callback.from_user.id)
-    
+
     result = await session.execute(
         select(User).where(User.telegram_id == telegram_id)
     )
     user = result.scalar_one_or_none()
-    
-    await callback.state.clear()
-    
+
+    await state.clear()
+
     if user:
         await callback.message.edit_text(
             "📱 Главное меню",
@@ -317,23 +317,19 @@ async def back_to_menu_handler(callback: types.CallbackQuery, session: AsyncSess
             "👋 Добро пожаловать! Выберите вашу роль:",
             reply_markup=get_role_selection_keyboard()
         )
-    
+
     await state.clear()
 
 
-@router.callback_query(F.data == "student_find_internship")
-async def student_find_internship_handler(callback: types.CallbackQuery):
-    """Поиск стажировки - заглушка"""
-    await callback.message.answer("🔍 Раздел 'Найти стажировку' в разработке.")
-    await callback.answer()
+# Кнопки главного меню теперь обрабатываются в соответствующих роутерах:
+# student_find_internship -> handlers/student_jobs.py
+# student_career_center -> handlers/career_center.py
+# employer_post_vacancy -> handlers/employer_jobs.py
+# employer_my_vacancies -> handlers/employer_jobs.py
+# employer_tariffs -> handlers/employer_jobs.py
+# employer_settings -> handlers/employer_jobs.py
 
-
-@router.callback_query(F.data == "student_career_center")
-async def student_career_center_handler(callback: types.CallbackQuery):
-    """Карьерный центр - заглушка"""
-    await callback.message.answer("🎓 Раздел 'Карьерный центр' в разработке.")
-    await callback.answer()
-
+# Оставляем только профиль и форум (пока заглушка)
 
 @router.callback_query(F.data == "student_forum")
 async def student_forum_handler(callback: types.CallbackQuery):
@@ -346,12 +342,12 @@ async def student_forum_handler(callback: types.CallbackQuery):
 async def student_profile_handler(callback: types.CallbackQuery, session: AsyncSession):
     """Профиль студента"""
     telegram_id = str(callback.from_user.id)
-    
+
     result = await session.execute(
         select(User).where(User.telegram_id == telegram_id)
     )
     user = result.scalar_one_or_none()
-    
+
     if user:
         profile_text = (
             "👤 Ваш профиль\n\n"
@@ -363,35 +359,7 @@ async def student_profile_handler(callback: types.CallbackQuery, session: AsyncS
         await callback.message.answer(profile_text, reply_markup=get_back_to_menu_keyboard())
     else:
         await callback.message.answer("❌ Профиль не найден.")
-    
-    await callback.answer()
 
-
-@router.callback_query(F.data == "employer_post_vacancy")
-async def employer_post_vacancy_handler(callback: types.CallbackQuery):
-    """Разместить вакансию - заглушка"""
-    await callback.message.answer("➕ Раздел 'Разместить вакансию' в разработке.")
-    await callback.answer()
-
-
-@router.callback_query(F.data == "employer_my_vacancies")
-async def employer_my_vacancies_handler(callback: types.CallbackQuery):
-    """Мои вакансии - заглушка"""
-    await callback.message.answer("📊 Раздел 'Мои вакансии' в разработке.")
-    await callback.answer()
-
-
-@router.callback_query(F.data == "employer_tariffs")
-async def employer_tariffs_handler(callback: types.CallbackQuery):
-    """Тарифы - заглушка"""
-    await callback.message.answer("💳 Раздел 'Тарифы' в разработке.")
-    await callback.answer()
-
-
-@router.callback_query(F.data == "employer_settings")
-async def employer_settings_handler(callback: types.CallbackQuery):
-    """Настройки - заглушка"""
-    await callback.message.answer("⚙️ Раздел 'Настройки' в разработке.")
     await callback.answer()
 
 

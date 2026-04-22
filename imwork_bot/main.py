@@ -11,6 +11,8 @@ from database import init_db, async_session_maker
 from handlers.onboarding import router as onboarding_router
 from handlers.student_jobs import router as student_jobs_router
 from handlers.career_center import router as career_center_router
+from handlers.employer_jobs import router as employer_jobs_router
+from handlers.moderation import router as moderation_router
 
 
 # Создаем диспетчер и бот
@@ -24,6 +26,8 @@ bot = Bot(
 dp.include_router(onboarding_router)
 dp.include_router(student_jobs_router)
 dp.include_router(career_center_router)
+dp.include_router(employer_jobs_router)
+dp.include_router(moderation_router)
 
 # Middleware для передачи сессии БД во все хендлеры
 @dp.message.middleware()
@@ -41,6 +45,10 @@ student_jobs_router.message.middleware(db_session_middleware)
 student_jobs_router.callback_query.middleware(db_session_middleware)
 career_center_router.message.middleware(db_session_middleware)
 career_center_router.callback_query.middleware(db_session_middleware)
+employer_jobs_router.message.middleware(db_session_middleware)
+employer_jobs_router.callback_query.middleware(db_session_middleware)
+moderation_router.message.middleware(db_session_middleware)
+moderation_router.callback_query.middleware(db_session_middleware)
 
 async def on_startup():
     """Функция, вызываемая при запуске бота"""

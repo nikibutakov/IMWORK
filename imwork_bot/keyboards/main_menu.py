@@ -27,7 +27,7 @@ def get_student_main_menu() -> InlineKeyboardMarkup:
 def get_employer_main_menu() -> InlineKeyboardMarkup:
     """Главное меню для работодателя"""
     builder = InlineKeyboardBuilder()
-    builder.button(text="➕ Разместить вакансию", callback_data="employer_post_vacancy")
+    builder.button(text="➕ Разместить вакансию", callback_data="employer_create_vacancy")
     builder.button(text="📊 Мои вакансии", callback_data="employer_my_vacancies")
     builder.button(text="💳 Тарифы", callback_data="employer_tariffs")
     builder.button(text="⚙️ Настройки", callback_data="employer_settings")
