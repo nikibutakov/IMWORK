@@ -7,7 +7,7 @@ from aiogram.enums import ParseMode
 from aiogram.fsm.storage.memory import MemoryStorage
 
 from config import BOT_TOKEN, logger
-from database import init_db
+from database import init_db, async_session_maker
 from handlers.onboarding import router as onboarding_router
 
 
@@ -21,6 +21,18 @@ bot = Bot(
 # Регистрируем роутеры
 dp.include_router(onboarding_router)
 
+# Middleware для передачи сессии БД во все хендлеры
+@dp.message.middleware()
+@dp.callback_query.middleware()
+async def db_session_middleware(handler, event, data):
+    """Автоматически добавляет сессию БД в данные хендлера"""
+    async with async_session_maker() as session:
+        data['session'] = session
+        return await handler(event, data)
+
+# Добавляем middleware также на уровень роутера для гарантии
+onboarding_router.message.middleware(db_session_middleware)
+onboarding_router.callback_query.middleware(db_session_middleware)
 
 async def on_startup():
     """Функция, вызываемая при запуске бота"""

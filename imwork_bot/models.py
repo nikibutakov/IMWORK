@@ -69,7 +69,7 @@ class User(Base):
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
 
     # Связи
-    vacancies = relationship("Vacancy", back_populates="author", cascade="all, delete-orphan")
+    vacancies = relationship("Vacancy", back_populates="author", foreign_keys="[Vacancy.author_id]", cascade="all, delete-orphan")
     applications = relationship("Application", back_populates="applicant", cascade="all, delete-orphan")
 
     def __repr__(self):

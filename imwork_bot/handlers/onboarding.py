@@ -296,7 +296,7 @@ async def show_main_menu(message: types.Message, user: User):
 # ==================== Обработка кнопок главного меню ====================
 
 @router.callback_query(F.data == "back_to_menu")
-async def back_to_menu_handler(callback: types.CallbackQuery, session: AsyncSession):
+async def back_to_menu_handler(callback: types.CallbackQuery, session: AsyncSession, state: FSMContext):
     """Возврат в главное меню из любого состояния"""
     telegram_id = str(callback.from_user.id)
     
@@ -318,7 +318,7 @@ async def back_to_menu_handler(callback: types.CallbackQuery, session: AsyncSess
             reply_markup=get_role_selection_keyboard()
         )
     
-    await callback.answer()
+    await state.clear()
 
 
 @router.callback_query(F.data == "student_find_internship")
