@@ -1,0 +1,5 @@
+# Testing dependencies for ImWork Bot
+pytest==8.3.4
+pytest-asyncio==0.24.0
+pytest-mock==3.14.0
+aiosqlite==0.20.0
