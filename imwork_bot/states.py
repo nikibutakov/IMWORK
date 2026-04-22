@@ -1,4 +1,4 @@
-"""Файл состояний FSM для онбординга пользователей и откликов"""
+"""Файл состояний FSM для онбординга пользователей, откликов и создания вакансий"""
 
 from aiogram.fsm.state import StatesGroup, State
 
@@ -22,3 +22,30 @@ class ApplicationState(StatesGroup):
     selecting_type = State()      # Выбор типа отклика
     uploading_resume = State()    # Загрузка резюме
     writing_message = State()     # Написание сообщения HR
+
+
+class VacancyCreationState(StatesGroup):
+    """Состояния для пошагового создания вакансии работодателем"""
+    position_name = State()     # Название позиции
+    tasks = State()             # Описание задач
+    requirements = State()      # Требования к кандидату
+    conditions = State()        # Условия работы
+    salary_input = State()      # Зарплата (опционально)
+    category_select = State()   # Выбор категории
+    tariff_select = State()     # Выбор тарифа
+
+
+class CompanySettingsState(StatesGroup):
+    """Состояния для редактирования настроек компании"""
+    edit_contacts = State()     # Редактирование контактов
+    edit_description = State()  # Редактирование описания компании
+
+
+class ModeratorActionState(StatesGroup):
+    """Состояния для действий модератора при отклонении вакансии"""
+    reject_comment = State()    # Ввод комментария при отклонении
+
+
+class QuestionToCuratorState(StatesGroup):
+    """Состояния для вопроса куратору из карьерного центра"""
+    question_text = State()     # Текст вопроса
