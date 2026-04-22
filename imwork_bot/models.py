@@ -113,36 +113,6 @@ class Vacancy(Base):
         return f"<Vacancy(id={self.id}, title={self.title}, status={self.status})>"
 
 
-class Application(Base):
-    """Таблица откликов на вакансии"""
-    __tablename__ = "applications"
-
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    vacancy_id = Column(Integer, ForeignKey("vacancies.id"), nullable=False)
-    applicant_id = Column(Integer, ForeignKey("users.id"), nullable=False)
-
-    # Данные отклика
-    cover_letter = Column(Text, nullable=True)  # Сопроводительное письмо
-    resume_link = Column(String(500), nullable=True)  # Ссылка на резюме
-    portfolio_link = Column(String(500), nullable=True)  # Ссылка на портфолио
-
-    # Статус
-    status = Column(String(20), default=ApplicationStatus.PENDING.value, nullable=False)
-    status_comment = Column(Text, nullable=True)  # Комментарий к статусу
-
-    # Даты
-    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
-    reviewed_at = Column(DateTime, nullable=True)
-
-    # Связи
-    vacancy = relationship("Vacancy", back_populates="applications")
-    applicant = relationship("User", back_populates="applications")
-
-    def __repr__(self):
-        return f"<Application(id={self.id}, vacancy_id={self.vacancy_id}, status={self.status})>"
-
-
 class CareerMaterial(Base):
     """Таблица материалов по карьере (статьи, гайды, видео)"""
     __tablename__ = "career_materials"
@@ -180,3 +150,53 @@ class CareerMaterial(Base):
 
     def __repr__(self):
         return f"<CareerMaterial(id={self.id}, title={self.title}, type={self.material_type})>"
+
+
+class Favorite(Base):
+    """Таблица избранных вакансий"""
+    __tablename__ = "favorites"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    vacancy_id = Column(Integer, ForeignKey("vacancies.id"), nullable=False)
+
+    # Даты
+    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+
+    # Связи
+    user = relationship("User", backref="favorites")
+    vacancy = relationship("Vacancy", backref="favorited_by")
+
+    def __repr__(self):
+        return f"<Favorite(user_id={self.user_id}, vacancy_id={self.vacancy_id})>"
+
+
+class Application(Base):
+    """Таблица откликов на вакансии"""
+    __tablename__ = "applications"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    vacancy_id = Column(Integer, ForeignKey("vacancies.id"), nullable=False)
+    applicant_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+
+    # Данные отклика
+    cover_letter = Column(Text, nullable=True)  # Сопроводительное письмо
+    resume_link = Column(String(500), nullable=True)  # Ссылка на резюме
+    portfolio_link = Column(String(500), nullable=True)  # Ссылка на портфолио
+    resume_file_id = Column(String(200), nullable=True)  # file_id загруженного файла
+
+    # Статус
+    status = Column(String(20), default=ApplicationStatus.PENDING.value, nullable=False)
+    status_comment = Column(Text, nullable=True)  # Комментарий к статусу
+
+    # Даты
+    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
+    reviewed_at = Column(DateTime, nullable=True)
+
+    # Связи
+    vacancy = relationship("Vacancy", back_populates="applications")
+    applicant = relationship("User", back_populates="applications")
+
+    def __repr__(self):
+        return f"<Application(id={self.id}, vacancy_id={self.vacancy_id}, status={self.status})>"

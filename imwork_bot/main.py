@@ -9,6 +9,8 @@ from aiogram.fsm.storage.memory import MemoryStorage
 from config import BOT_TOKEN, logger
 from database import init_db, async_session_maker
 from handlers.onboarding import router as onboarding_router
+from handlers.student_jobs import router as student_jobs_router
+from handlers.career_center import router as career_center_router
 
 
 # Создаем диспетчер и бот
@@ -20,6 +22,8 @@ bot = Bot(
 
 # Регистрируем роутеры
 dp.include_router(onboarding_router)
+dp.include_router(student_jobs_router)
+dp.include_router(career_center_router)
 
 # Middleware для передачи сессии БД во все хендлеры
 @dp.message.middleware()
@@ -33,6 +37,10 @@ async def db_session_middleware(handler, event, data):
 # Добавляем middleware также на уровень роутера для гарантии
 onboarding_router.message.middleware(db_session_middleware)
 onboarding_router.callback_query.middleware(db_session_middleware)
+student_jobs_router.message.middleware(db_session_middleware)
+student_jobs_router.callback_query.middleware(db_session_middleware)
+career_center_router.message.middleware(db_session_middleware)
+career_center_router.callback_query.middleware(db_session_middleware)
 
 async def on_startup():
     """Функция, вызываемая при запуске бота"""
