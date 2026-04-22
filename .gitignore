@@ -1,6 +1,39 @@
 ```
+# Environment
+.env
+.env.local
+*.env.*
+
+# Database
+imwork_bot/imwork_bot.db
+
+# Dependencies
+.venv/
+venv/
 __pycache__/
 *.pyc
 *.pyo
 *.pyd
+
+# Logs and temp files
+*.log
+*.tmp
+*.swp
+
+# Editors
+.vscode/
+.idea/
+
+# Coverage
+.coverage
+coverage/
+htmlcov/
+
+# Python specific
+*.egg-info/
+dist/
+build/
+*.so
+*.dylib
+*.dll
 ```
