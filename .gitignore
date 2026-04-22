@@ -10,30 +10,32 @@ venv/
 .venv/
 .ENV
 .ENV.local
-.env
-.env.local
-.env.*
-.pytest_cache/
-.mypy_cache/
-.coverage
-htmlcov/
 
 # Build artifacts
 build/
 dist/
 *.egg-info/
 
-# Editors
+# Logs
+*.log
+
+# IDE
 .vscode/
 .idea/
 *.swp
 *.swo
-*.tmp
 
-# Logs
-*.log
+# Coverage
+.coverage
+coverage/
+htmlcov/
 
-# OS
-.DS_Store
-Thumbs.db
+# Testing
+.pytest_cache/
+.mypy_cache/
+
+# Environment
+.env
+.env.local
+*.env.*
 ```
