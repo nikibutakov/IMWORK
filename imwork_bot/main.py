@@ -79,5 +79,5 @@ if __name__ == "__main__":
         logger.critical(f"Критическая ошибка: {e}", exc_info=True)
     finally:
         # Закрываем сессию бота при завершении
-        if bot.session.closed is False:
+        if bot.session.close is False:
             asyncio.run(bot.session.close())
