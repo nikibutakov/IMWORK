@@ -4,17 +4,22 @@ import logging
 from aiogram import Bot, Dispatcher
 from aiogram.client.default import DefaultBotProperties
 from aiogram.enums import ParseMode
+from aiogram.fsm.storage.memory import MemoryStorage
 
 from config import BOT_TOKEN, logger
 from database import init_db
+from handlers.onboarding import router as onboarding_router
 
 
-# Создаем диспетчер и бота
-dp = Dispatcher()
+# Создаем диспетчер и бот
+dp = Dispatcher(storage=MemoryStorage())
 bot = Bot(
     token=BOT_TOKEN,
     default=DefaultBotProperties(parse_mode=ParseMode.HTML),
 )
+
+# Регистрируем роутеры
+dp.include_router(onboarding_router)
 
 
 async def on_startup():

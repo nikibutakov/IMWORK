@@ -1,32 +1,6 @@
-# Python
+```
 __pycache__/
 *.pyc
 *.pyo
 *.pyd
-*.py~
-
-# Database
-imwork_bot/imwork_bot.db
-
-# Environment
-.env
-.env.local
-.env.*
-
-# Dependencies
-venv/
-.venv/
-env/
-.ENV/
-
-# Logs
-*.log
-
-# Temporary files
-*.tmp
-*.swp
-*.swo
-
-# OS generated files
-.DS_Store
-Thumbs.db
+```
